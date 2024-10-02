@@ -5,23 +5,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/employee")
 public class EmployeeController {
     private List<Employee> employees = new ArrayList<>(
             Arrays.asList(
-                    new Employee(UUID.randomUUID(), "Hoàng Văn Hải", "Nam", 15.000000, new Date(1990, 1, 15)),
-                    new Employee(UUID.randomUUID(), "Trần Thị Hoài", "Nữ", 14.500000, new Date(1985, 5, 20)),
-                    new Employee(UUID.randomUUID(), "Lê Văn Sỹ", "Nam", 15.500000, new Date(1992, 3, 30)),
-                    new Employee(UUID.randomUUID(), "Phạm Duy Khánh", "Nữ ", 14.800000, new Date(1988, 5, 07)),
-                    new Employee(UUID.randomUUID(), "Hoàng Văn Quý", "Nam", 15.200000, new Date(1995, 9, 25))
+                    new Employee(UUID.randomUUID(), "Hoàng Văn Hải", "Nam", 15.000000, new Date(1990, 1, 15), 1),
+                    new Employee(UUID.randomUUID(), "Trần Thị Hoài", "Nữ", 14.500000, new Date(1985, 5, 20), 2),
+                    new Employee(UUID.randomUUID(), "Lê Văn Sỹ", "Nam", 15.500000, new Date(1992, 3, 30), 3),
+                    new Employee(UUID.randomUUID(), "Phạm Duy Khánh", "Nữ ", 14.800000, new Date(1988, 5, 07), 4),
+                    new Employee(UUID.randomUUID(), "Hoàng Văn Quý", "Nam", 15.200000, new Date(1995, 9, 25), 5)
             )
     );
 
     @GetMapping
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employees);
+    public ResponseEntity<List<Employee>> getAllEmployees(
+            @RequestParam(value = "name", required = false) String name,
+            @RequestParam(value = "gender", required = false) String gender,
+//            @RequestParam(value = "salaryRange",required = false) Double salaryRange,
+            @RequestParam(value = "departmentId", required = false) Integer departmentId
+    ) {
+        List<Employee> filterEmployee = employees.stream()
+                .filter(e -> (name == null || e.getName().toLowerCase().contains(name.toLowerCase())))
+                .filter(e -> (gender == null || e.getGender().toLowerCase().contains(gender.toLowerCase())))
+                .filter(e -> (departmentId == null || e.getDepartmentId().equals(departmentId)))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(filterEmployee);
     }
 
     @PostMapping
@@ -68,7 +79,7 @@ public class EmployeeController {
         if (isRemoved) {
             return ResponseEntity.ok().build();
         } else {
-            return ResponseEntity.notFound().build(); 
+            return ResponseEntity.notFound().build();
         }
     }
 }

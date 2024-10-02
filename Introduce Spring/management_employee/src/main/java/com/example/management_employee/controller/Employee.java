@@ -17,4 +17,5 @@ public class Employee {
      String gender;
      double salary;
      Date birthday;
+     Integer departmentId;
 }
